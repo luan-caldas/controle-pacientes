@@ -32,38 +32,54 @@ export default function PacienteDetailPage() {
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [editError, setEditError] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const load = useCallback(async () => {
-    const supabase = createClient()
-    const [{ data: pac }, { data: acomps }] = await Promise.all([
-      supabase.from('pacientes').select('*').eq('id', id).single(),
-      supabase
-        .from('acompanhamentos')
-        .select('*, diagnostico:diagnosticos(id, nome), eventos:acompanhamento_eventos(evento:eventos_nao_esperados(id, nome))')
-        .eq('paciente_id', id)
-        .order('data_admissao', { ascending: false }),
-    ])
-    setPaciente(pac)
-    const normalized = (acomps ?? []).map((a: any) => ({
-      ...a,
-      eventos: a.eventos?.map((e: any) => e.evento) ?? [],
-    }))
-    setAcompanhamentos(normalized)
-    setLoading(false)
+    setLoading(true)
+    try {
+      const supabase = createClient()
+      const [{ data: pac }, { data: acomps }] = await Promise.all([
+        supabase.from('pacientes').select('*').eq('id', id).single(),
+        supabase
+          .from('acompanhamentos')
+          .select('*, diagnostico:diagnosticos(id, nome), eventos:acompanhamento_eventos(evento:eventos_nao_esperados(id, nome))')
+          .eq('paciente_id', id)
+          .order('data_admissao', { ascending: false }),
+      ])
+      setPaciente(pac)
+      const normalized = (acomps ?? []).map((a: any) => ({
+        ...a,
+        eventos: a.eventos?.map((e: any) => e.evento) ?? [],
+      }))
+      setAcompanhamentos(normalized)
+    } finally {
+      setLoading(false)
+    }
   }, [id])
 
   useEffect(() => { load() }, [load])
 
   async function handleEdit(data: PacienteFormData) {
+    setEditError(null)
     const supabase = createClient()
-    await supabase.from('pacientes').update(data).eq('id', id)
+    const { error } = await supabase.from('pacientes').update(data).eq('id', id)
+    if (error) {
+      setEditError('Erro ao salvar. Tente novamente.')
+      return
+    }
     setEditOpen(false)
     load()
   }
 
   async function handleDelete() {
+    setIsDeleting(true)
     const supabase = createClient()
-    await supabase.from('pacientes').delete().eq('id', id)
+    const { error } = await supabase.from('pacientes').delete().eq('id', id)
+    if (error) {
+      setIsDeleting(false)
+      return
+    }
     router.push('/pacientes')
   }
 
@@ -80,7 +96,7 @@ export default function PacienteDetailPage() {
           <ArrowLeft size={15} /> Pacientes
         </Button>
         <div className="flex gap-2">
-          <Sheet open={editOpen} onOpenChange={setEditOpen}>
+          <Sheet open={editOpen} onOpenChange={(v) => { setEditOpen(v); if (!v) setEditError(null) }}>
             <SheetTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
                 <Pencil size={13} /> Editar
@@ -102,6 +118,9 @@ export default function PacienteDetailPage() {
                   submitLabel="Salvar Alterações"
                 />
               </div>
+              {editError && (
+                <p className="text-sm text-red-600 mt-2 text-center">{editError}</p>
+              )}
             </SheetContent>
           </Sheet>
 
@@ -120,7 +139,9 @@ export default function PacienteDetailPage() {
               </DialogHeader>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setDeleteOpen(false)}>Cancelar</Button>
-                <Button variant="destructive" onClick={handleDelete}>Excluir</Button>
+                <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+                  {isDeleting ? 'Excluindo...' : 'Excluir'}
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
