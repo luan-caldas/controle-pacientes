@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp .mcp.json /tmp/mcp_backup.json)",
+      "Bash(cp -r .claude /tmp/claude_backup)",
+      "Bash(npm install *)",
+      "Bash(npx shadcn@latest init --defaults)",
+      "Bash(npx shadcn@latest add button input label card table sheet dialog badge select command popover checkbox separator scroll-area --overwrite)",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(JSON.stringify\\({dependencies: Object.keys\\(p.dependencies\\), devDependencies: Object.keys\\(p.devDependencies\\)}, null, 2\\)\\)\")",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  },
+  "enabledPlugins": {
+    "superpowers@superpowers-marketplace": true
+  }
+}
