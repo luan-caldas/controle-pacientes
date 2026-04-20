@@ -20,17 +20,20 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (error) {
-      setError('E-mail ou senha inválidos.')
+      if (error) {
+        setError('E-mail ou senha inválidos.')
+        return
+      }
+
+      router.push('/pacientes')
+      router.refresh()
+    } finally {
       setLoading(false)
-      return
     }
-
-    router.push('/pacientes')
-    router.refresh()
   }
 
   return (
