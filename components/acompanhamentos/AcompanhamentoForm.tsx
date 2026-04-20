@@ -22,7 +22,7 @@ const schema = z.object({
   diagnostico_id: z.string().uuid('Diagnóstico é obrigatório'),
   via_sisreg: z.boolean(),
   data_admissao: z.string().min(1, 'Data de admissão é obrigatória'),
-  data_alta: z.string().nullable().optional(),
+  data_alta: z.string().optional().nullable().transform(v => v === '' ? null : (v ?? null)),
   recidiva: z.boolean(),
   eventos_ids: z.array(z.string().uuid()),
   observacao: z.string().optional(),

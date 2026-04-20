@@ -21,10 +21,13 @@ export function DiagnosticoCombobox({ value, onChange }: DiagnosticoComboboxProp
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [diagnosticos, setDiagnosticos] = useState<Diagnostico[]>([])
+  const [creating, setCreating] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
   async function load() {
     const supabase = createClient()
-    const { data } = await supabase.from('diagnosticos').select('*').order('nome')
+    const { data, error } = await supabase.from('diagnosticos').select('*').order('nome')
+    if (error) { setLoadError(true); return }
     if (data) setDiagnosticos(data)
   }
 
@@ -38,17 +41,22 @@ export function DiagnosticoCombobox({ value, onChange }: DiagnosticoComboboxProp
     !filtered.some(d => d.nome.toLowerCase() === search.trim().toLowerCase())
 
   async function handleCreate() {
-    const supabase = createClient()
-    const { data } = await supabase
-      .from('diagnosticos')
-      .insert({ nome: search.trim() })
-      .select()
-      .single()
-    if (data) {
+    if (creating) return
+    setCreating(true)
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('diagnosticos')
+        .insert({ nome: search.trim() })
+        .select()
+        .single()
+      if (error || !data) return
       setDiagnosticos(prev => [...prev, data].sort((a, b) => a.nome.localeCompare(b.nome)))
       onChange(data.id)
       setOpen(false)
       setSearch('')
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -58,7 +66,7 @@ export function DiagnosticoCombobox({ value, onChange }: DiagnosticoComboboxProp
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
-          {selected?.nome ?? 'Selecione um diagnóstico...'}
+          {loadError ? 'Erro ao carregar' : (selected?.nome ?? 'Selecione um diagnóstico...')}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -86,6 +94,7 @@ export function DiagnosticoCombobox({ value, onChange }: DiagnosticoComboboxProp
                 <CommandItem
                   value={`__criar__${search}`}
                   onSelect={handleCreate}
+                  disabled={creating}
                   className="text-blue-600 font-medium"
                 >
                   <Plus className="mr-2 h-4 w-4" />

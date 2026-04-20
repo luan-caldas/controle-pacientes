@@ -22,10 +22,13 @@ export function EventosMultiSelect({ value, onChange }: EventosMultiSelectProps)
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [eventos, setEventos] = useState<EventoNaoEsperado[]>([])
+  const [creating, setCreating] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
   async function load() {
     const supabase = createClient()
-    const { data } = await supabase.from('eventos_nao_esperados').select('*').order('nome')
+    const { data, error } = await supabase.from('eventos_nao_esperados').select('*').order('nome')
+    if (error) { setLoadError(true); return }
     if (data) setEventos(data)
   }
 
@@ -39,16 +42,21 @@ export function EventosMultiSelect({ value, onChange }: EventosMultiSelectProps)
     !filtered.some(e => e.nome.toLowerCase() === search.trim().toLowerCase())
 
   async function handleCreate() {
-    const supabase = createClient()
-    const { data } = await supabase
-      .from('eventos_nao_esperados')
-      .insert({ nome: search.trim() })
-      .select()
-      .single()
-    if (data) {
+    if (creating) return
+    setCreating(true)
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('eventos_nao_esperados')
+        .insert({ nome: search.trim() })
+        .select()
+        .single()
+      if (error || !data) return
       setEventos(prev => [...prev, data].sort((a, b) => a.nome.localeCompare(b.nome)))
       onChange([...value, data.id])
       setSearch('')
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -63,7 +71,7 @@ export function EventosMultiSelect({ value, onChange }: EventosMultiSelectProps)
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
-            {value.length === 0 ? 'Selecione eventos...' : `${value.length} evento(s) selecionado(s)`}
+            {loadError ? 'Erro ao carregar' : (value.length === 0 ? 'Selecione eventos...' : `${value.length} evento(s) selecionado(s)`)}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -87,6 +95,7 @@ export function EventosMultiSelect({ value, onChange }: EventosMultiSelectProps)
                   <CommandItem
                     value={`__criar__${search}`}
                     onSelect={handleCreate}
+                    disabled={creating}
                     className="text-blue-600 font-medium"
                   >
                     <Plus className="mr-2 h-4 w-4" />
