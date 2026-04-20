@@ -3,6 +3,7 @@ import {
   calcularDiasAcompanhamento,
   isAtivo,
   getDiagnosticoAtivo,
+  calcularMeses,
   getFaixaMeses,
   formatarDataBR,
 } from '@/lib/calculos'
@@ -73,6 +74,7 @@ describe('getDiagnosticoAtivo', () => {
 })
 
 describe('getFaixaMeses', () => {
+  it('< 1 mês', () => expect(getFaixaMeses(0)).toBe('< 1 mês'))
   it('1-3 meses', () => expect(getFaixaMeses(2)).toBe('1-3 meses'))
   it('4-6 meses', () => expect(getFaixaMeses(5)).toBe('4-6 meses'))
   it('7-9 meses', () => expect(getFaixaMeses(8)).toBe('7-9 meses'))
@@ -83,5 +85,15 @@ describe('getFaixaMeses', () => {
 describe('formatarDataBR', () => {
   it('formata data ISO para dd/mm/aaaa', () => {
     expect(formatarDataBR('2026-04-20')).toBe('20/04/2026')
+  })
+})
+
+describe('calcularMeses', () => {
+  it('retorna meses completos entre admissão e alta', () => {
+    expect(calcularMeses('2026-01-01', '2026-04-01')).toBe(3)
+  })
+
+  it('trunca meses parciais (não arredonda)', () => {
+    expect(calcularMeses('2026-01-01', '2026-03-15')).toBe(2)
   })
 })

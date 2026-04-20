@@ -44,6 +44,7 @@ export function calcularMeses(dataAdmissao: string, dataAlta: string): number {
 }
 
 export function getFaixaMeses(meses: number): string {
+  if (meses < 1) return '< 1 mês'
   if (meses <= 3) return '1-3 meses'
   if (meses <= 6) return '4-6 meses'
   if (meses <= 9) return '7-9 meses'
