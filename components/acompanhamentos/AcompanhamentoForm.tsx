@@ -85,9 +85,11 @@ export function AcompanhamentoForm({
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione um paciente..." />
+                  <SelectValue placeholder="Selecione um paciente...">
+                    {field.value ? pacientes.find(p => p.id === field.value)?.nome : null}
+                  </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="min-w-[400px]">
                   {pacientes.map(p => (
                     <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
                   ))}

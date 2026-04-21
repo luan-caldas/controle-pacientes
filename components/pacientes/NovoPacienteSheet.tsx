@@ -39,7 +39,7 @@ export function NovoPacienteSheet({ onSuccess }: NovoPacienteSheetProps) {
         <SheetHeader>
           <SheetTitle>Novo Paciente</SheetTitle>
         </SheetHeader>
-        <div className="mt-6">
+        <div className="mt-6 px-4">
           <PacienteForm onSubmit={handleSubmit} submitLabel="Cadastrar Paciente" />
         </div>
         {saveError && (
