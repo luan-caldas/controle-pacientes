@@ -4,23 +4,14 @@ import { useState } from 'react'
 import { Maximize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { PeriodFilter } from './PeriodFilter'
-import { PeriodFilter as PeriodFilterType } from '@/types'
 
 interface ChartCardProps {
   title: string
-  globalFilter: PeriodFilterType
-  children: (filter: PeriodFilterType) => React.ReactNode
-  hideFilter?: boolean
+  children: () => React.ReactNode
 }
 
-export function ChartCard({ title, globalFilter, children, hideFilter }: ChartCardProps) {
+export function ChartCard({ title, children }: ChartCardProps) {
   const [expanded, setExpanded] = useState(false)
-  const [localFilter, setLocalFilter] = useState<PeriodFilterType>({ from: null, to: null })
-
-  const activeFilter: PeriodFilterType = expanded
-    ? { from: localFilter.from ?? globalFilter.from, to: localFilter.to ?? globalFilter.to }
-    : globalFilter
 
   return (
     <>
@@ -31,22 +22,15 @@ export function ChartCard({ title, globalFilter, children, hideFilter }: ChartCa
             <Maximize2 size={14} />
           </Button>
         </div>
-        <div className="h-64">{children(globalFilter)}</div>
+        <div className="h-64">{children()}</div>
       </div>
 
       <Dialog open={expanded} onOpenChange={setExpanded}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-[92vw] sm:max-w-[92vw] w-[92vw]">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
-          {!hideFilter && (
-            <PeriodFilter
-              value={localFilter}
-              onChange={setLocalFilter}
-              label="Filtro individual (sobrescreve o global)"
-            />
-          )}
-          <div className="h-96">{children(activeFilter)}</div>
+          <div className="h-[65vh]">{children()}</div>
         </DialogContent>
       </Dialog>
     </>

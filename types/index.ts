@@ -40,3 +40,44 @@ export interface PeriodFilter {
   from: string | null
   to: string | null
 }
+
+export interface ReportFilter {
+  // Período de admissão
+  dataAdmissaoMin: string | null
+  dataAdmissaoMax: string | null
+  // Período de alta
+  dataAltaMin: string | null
+  dataAltaMax: string | null
+  // Faixa de dias
+  diasMin: number | ''
+  diasMax: number | ''
+  // Paciente
+  genero: 'Todos' | 'Masculino' | 'Feminino'
+  idadeMin: number | ''
+  idadeMax: number | ''
+  statusPaciente: 'Todos' | 'Ativo' | 'Inativo'
+  // Acompanhamento
+  diagnostico: string
+  statusAcomp: 'Todos' | 'Ativo' | 'Alta'
+  viaSisreg: 'Todos' | 'Sim' | 'Nao'
+  recidiva: 'Todos' | 'Sim' | 'Nao'
+  eventos: string[]
+}
+
+export const defaultReportFilter: ReportFilter = {
+  dataAdmissaoMin: null,
+  dataAdmissaoMax: null,
+  dataAltaMin: null,
+  dataAltaMax: null,
+  diasMin: '',
+  diasMax: '',
+  genero: 'Todos',
+  idadeMin: '',
+  idadeMax: '',
+  statusPaciente: 'Todos',
+  diagnostico: 'Todos',
+  statusAcomp: 'Todos',
+  viaSisreg: 'Todos',
+  recidiva: 'Todos',
+  eventos: [],
+}
