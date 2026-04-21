@@ -31,11 +31,9 @@ export function NovoPacienteSheet({ onSuccess }: NovoPacienteSheetProps) {
 
   return (
     <Sheet open={open} onOpenChange={(v) => { setOpen(v); if (!v) setSaveError(null) }}>
-      <SheetTrigger asChild>
-        <Button size="sm" className="gap-2">
-          <Plus size={15} />
-          Novo Paciente
-        </Button>
+      <SheetTrigger render={<Button size="sm" className="gap-2" />}>
+        <Plus size={15} />
+        Novo Paciente
       </SheetTrigger>
       <SheetContent className="overflow-y-auto">
         <SheetHeader>

@@ -16,7 +16,7 @@ const schema = z.object({
   data_nascimento: z.string().min(1, 'Data de nascimento é obrigatória'),
   numero_ses: z.string().min(1, 'Número SES é obrigatório'),
   telefone: z.string().min(1, 'Telefone é obrigatório'),
-  genero: z.enum(['Masculino', 'Feminino'], { required_error: 'Gênero é obrigatório' }),
+  genero: z.enum(['Masculino', 'Feminino'], { error: 'Gênero é obrigatório' }),
   observacoes: z.string().optional(),
 })
 

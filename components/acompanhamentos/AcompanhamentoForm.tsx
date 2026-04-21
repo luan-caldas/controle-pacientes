@@ -29,9 +29,10 @@ const schema = z.object({
 })
 
 export type AcompanhamentoFormData = z.infer<typeof schema>
+type AcompanhamentoFormInput = z.input<typeof schema>
 
 interface AcompanhamentoFormProps {
-  defaultValues?: Partial<AcompanhamentoFormData>
+  defaultValues?: Partial<AcompanhamentoFormInput>
   pacienteIdFixo?: string
   onSubmit: (data: AcompanhamentoFormData) => Promise<void>
   submitLabel: string
@@ -50,7 +51,7 @@ export function AcompanhamentoForm({
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<AcompanhamentoFormData>({
+  } = useForm<AcompanhamentoFormInput, unknown, AcompanhamentoFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       via_sisreg: false,

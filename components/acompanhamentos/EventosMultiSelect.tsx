@@ -69,11 +69,9 @@ export function EventosMultiSelect({ value, onChange }: EventosMultiSelectProps)
   return (
     <div className="space-y-2">
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
-            {loadError ? 'Erro ao carregar' : (value.length === 0 ? 'Selecione eventos...' : `${value.length} evento(s) selecionado(s)`)}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
+        <PopoverTrigger render={<Button variant="outline" role="combobox" className="w-full justify-between font-normal" />}>
+          {loadError ? 'Erro ao carregar' : (value.length === 0 ? 'Selecione eventos...' : `${value.length} evento(s) selecionado(s)`)}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
           <Command>
