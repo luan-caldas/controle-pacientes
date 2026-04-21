@@ -8,7 +8,6 @@ import { PacientesTable } from '@/components/pacientes/PacientesTable'
 import { NovoPacienteSheet } from '@/components/pacientes/NovoPacienteSheet'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
@@ -74,7 +73,7 @@ export default function PacientesPage() {
   const [filtroGenero, setFiltroGenero] = useState<Genero | 'Todos'>('Todos')
   const [idadeMin, setIdadeMin] = useState<number | ''>('')
   const [idadeMax, setIdadeMax] = useState<number | ''>('')
-  const [somenteDiagnosticoAtivo, setSomenteDiagnosticoAtivo] = useState(false)
+  const [filtroStatus, setFiltroStatus] = useState<'Todos' | 'Ativo' | 'Inativo'>('Todos')
   const [showFiltros, setShowFiltros] = useState(false)
 
   const load = useCallback(async () => {
@@ -95,11 +94,11 @@ export default function PacientesPage() {
     setFiltroGenero('Todos')
     setIdadeMin('')
     setIdadeMax('')
-    setSomenteDiagnosticoAtivo(false)
+    setFiltroStatus('Todos')
     setSearchTerm('')
   }
 
-  const filtrosAtivos = filtroGenero !== 'Todos' || idadeMin !== '' || idadeMax !== '' || somenteDiagnosticoAtivo
+  const filtrosAtivos = filtroGenero !== 'Todos' || idadeMin !== '' || idadeMax !== '' || filtroStatus !== 'Todos'
 
   const filteredPacientes = useMemo(() => {
     const query = searchTerm.trim()
@@ -114,12 +113,13 @@ export default function PacientesPage() {
         if (idadeMin !== '' && idade < idadeMin) return false
         if (idadeMax !== '' && idade > idadeMax) return false
 
-        // Filtro por diagnóstico ativo
-        if (somenteDiagnosticoAtivo) {
+        // Filtro por status
+        if (filtroStatus !== 'Todos') {
           const temAcompanhamentoAtivo = acompanhamentos.some(a =>
             a.paciente_id === p.id && !a.data_alta
           )
-          if (!temAcompanhamentoAtivo) return false
+          if (filtroStatus === 'Ativo' && !temAcompanhamentoAtivo) return false
+          if (filtroStatus === 'Inativo' && temAcompanhamentoAtivo) return false
         }
 
         return true
@@ -135,7 +135,7 @@ export default function PacientesPage() {
       .filter(item => item.score > 0)
       .sort((a, b) => b.score - a.score)
       .map(item => item.paciente)
-  }, [pacientes, acompanhamentos, searchTerm, filtroGenero, idadeMin, idadeMax, somenteDiagnosticoAtivo])
+  }, [pacientes, acompanhamentos, searchTerm, filtroGenero, idadeMin, idadeMax, filtroStatus])
 
   return (
     <div className="space-y-4">
@@ -232,19 +232,19 @@ export default function PacientesPage() {
               />
             </div>
 
-            {/* Filtro por diagnóstico ativo */}
+            {/* Filtro por status */}
             <div className="space-y-1.5">
-              <Label htmlFor="diagnostico-ativo">Status</Label>
-              <div className="flex h-8 items-center">
-                <Label className="flex items-center gap-2 cursor-pointer text-sm font-normal">
-                  <Checkbox
-                    id="diagnostico-ativo"
-                    checked={somenteDiagnosticoAtivo}
-                    onCheckedChange={(checked) => setSomenteDiagnosticoAtivo(checked === true)}
-                  />
-                  Com diagnóstico ativo
-                </Label>
-              </div>
+              <Label>Status</Label>
+              <Select value={filtroStatus} onValueChange={(v) => setFiltroStatus(v as 'Todos' | 'Ativo' | 'Inativo')}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Todos">Todos</SelectItem>
+                  <SelectItem value="Ativo">Ativo</SelectItem>
+                  <SelectItem value="Inativo">Inativo</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

@@ -102,7 +102,7 @@ export default function PacienteDetailPage() {
           <Sheet open={editOpen} onOpenChange={(v) => { setEditOpen(v); if (!v) setEditError(null) }}>
             <SheetContent className="overflow-y-auto">
               <SheetHeader><SheetTitle>Editar Paciente</SheetTitle></SheetHeader>
-              <div className="mt-6">
+              <div className="mt-6 px-4 pb-4">
                 <PacienteForm
                   defaultValues={{
                     nome: paciente.nome,
@@ -117,7 +117,7 @@ export default function PacienteDetailPage() {
                 />
               </div>
               {editError && (
-                <p className="text-sm text-red-600 mt-2 text-center">{editError}</p>
+                <p className="text-sm text-red-600 mt-2 px-4 text-center">{editError}</p>
               )}
             </SheetContent>
           </Sheet>

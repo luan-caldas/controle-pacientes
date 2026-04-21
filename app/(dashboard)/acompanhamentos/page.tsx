@@ -1,14 +1,19 @@
 'use client'
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import { Plus, Search, Filter, X } from 'lucide-react'
+import { Plus, Search, Filter, X, Check, ChevronsUpDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Acompanhamento, Diagnostico, EventoNaoEsperado } from '@/types'
 import { AcompanhamentosTable } from '@/components/acompanhamentos/AcompanhamentosTable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
+import {
+  Command, CommandGroup, CommandInput, CommandItem, CommandList, CommandEmpty,
+} from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle,
 } from '@/components/ui/sheet'
@@ -87,6 +92,7 @@ export default function AcompanhamentosPage() {
   const [filtroViaSisreg, setFiltroViaSisreg] = useState<'Todos' | 'Sim' | 'Nao'>('Todos')
   const [filtroRecidiva, setFiltroRecidiva] = useState<'Todos' | 'Sim' | 'Nao'>('Todos')
   const [filtroEventos, setFiltroEventos] = useState<string[]>([])
+  const [eventosPopoverOpen, setEventosPopoverOpen] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -152,7 +158,7 @@ export default function AcompanhamentosPage() {
     return acompanhamentos
       .filter(a => {
         // Filtro por diagnóstico
-        if (filtroDiagnostico !== 'Todos' && a.diagnostico_id !== filtroDiagnostico) return false
+        if (filtroDiagnostico !== 'Todos' && a.diagnostico?.nome !== filtroDiagnostico) return false
 
         // Filtro por status
         if (filtroStatus !== 'Todos') {
@@ -314,7 +320,7 @@ export default function AcompanhamentosPage() {
                 <SelectContent>
                   <SelectItem value="Todos">Todos</SelectItem>
                   {diagnosticos.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
+                    <SelectItem key={d.id} value={d.nome}>
                       {d.nome}
                     </SelectItem>
                   ))}
@@ -359,28 +365,6 @@ export default function AcompanhamentosPage() {
               />
             </div>
 
-            {/* Filtro por data de alta mínima */}
-            <div className="space-y-1.5">
-              <Label htmlFor="alta-min">Data alta (de)</Label>
-              <Input
-                id="alta-min"
-                type="date"
-                value={filtroDataAltaMin}
-                onChange={(e) => setFiltroDataAltaMin(e.target.value)}
-              />
-            </div>
-
-            {/* Filtro por data de alta máxima */}
-            <div className="space-y-1.5">
-              <Label htmlFor="alta-max">Data alta (até)</Label>
-              <Input
-                id="alta-max"
-                type="date"
-                value={filtroDataAltaMax}
-                onChange={(e) => setFiltroDataAltaMax(e.target.value)}
-              />
-            </div>
-
             {/* Filtro por dias mínimos */}
             <div className="space-y-1.5">
               <Label htmlFor="dias-min">Dias (mín)</Label>
@@ -410,6 +394,28 @@ export default function AcompanhamentosPage() {
                   const val = e.target.value === '' ? '' : parseInt(e.target.value, 10)
                   setFiltroDiasMax(val === '' ? '' : Math.max(0, val))
                 }}
+              />
+            </div>
+
+            {/* Filtro por data de alta mínima */}
+            <div className="space-y-1.5">
+              <Label htmlFor="alta-min">Data alta (de)</Label>
+              <Input
+                id="alta-min"
+                type="date"
+                value={filtroDataAltaMin}
+                onChange={(e) => setFiltroDataAltaMin(e.target.value)}
+              />
+            </div>
+
+            {/* Filtro por data de alta máxima */}
+            <div className="space-y-1.5">
+              <Label htmlFor="alta-max">Data alta (até)</Label>
+              <Input
+                id="alta-max"
+                type="date"
+                value={filtroDataAltaMax}
+                onChange={(e) => setFiltroDataAltaMax(e.target.value)}
               />
             </div>
 
@@ -449,29 +455,59 @@ export default function AcompanhamentosPage() {
               </Select>
             </div>
 
-            {/* Filtro por eventos - ocupa 2 colunas */}
-            <div className="space-y-1.5 sm:col-span-2 lg:col-span-2 xl:col-span-2">
+            {/* Filtro por eventos */}
+            <div className="space-y-1.5">
               <Label>Eventos não esperados</Label>
-              <div className="flex flex-wrap gap-2">
-                {eventos.map((e) => (
-                  <Label
-                    key={e.id}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-full cursor-pointer hover:bg-slate-200 transition-colors text-sm"
-                  >
-                    <Checkbox
-                      checked={filtroEventos.includes(e.id)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setFiltroEventos([...filtroEventos, e.id])
-                        } else {
-                          setFiltroEventos(filtroEventos.filter((id) => id !== e.id))
-                        }
-                      }}
-                    />
-                    {e.nome}
-                  </Label>
-                ))}
-              </div>
+              <Popover open={eventosPopoverOpen} onOpenChange={setEventosPopoverOpen}>
+                <PopoverTrigger render={
+                  <Button variant="outline" role="combobox" className="w-full justify-between font-normal" />
+                }>
+                  {filtroEventos.length === 0
+                    ? 'Selecione eventos...'
+                    : `${filtroEventos.length} evento(s) selecionado(s)`}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                  <Command>
+                    <CommandInput placeholder="Buscar evento..." />
+                    <CommandList>
+                      <CommandEmpty>Nenhum resultado.</CommandEmpty>
+                      <CommandGroup>
+                        {eventos.map((e) => (
+                          <CommandItem
+                            key={e.id}
+                            value={e.nome}
+                            onSelect={() => setFiltroEventos(
+                              filtroEventos.includes(e.id)
+                                ? filtroEventos.filter(id => id !== e.id)
+                                : [...filtroEventos, e.id]
+                            )}
+                          >
+                            <Check className={cn('mr-2 h-4 w-4', filtroEventos.includes(e.id) ? 'opacity-100' : 'opacity-0')} />
+                            {e.nome}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              {filtroEventos.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {eventos.filter(e => filtroEventos.includes(e.id)).map(e => (
+                    <Badge key={e.id} variant="secondary" className="gap-1 pr-1">
+                      {e.nome}
+                      <button
+                        type="button"
+                        onClick={() => setFiltroEventos(filtroEventos.filter(id => id !== e.id))}
+                        className="ml-0.5 rounded hover:text-red-500"
+                      >
+                        <X size={11} />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

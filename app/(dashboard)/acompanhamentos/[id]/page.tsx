@@ -125,7 +125,7 @@ export default function AcompanhamentoDetailPage() {
           <Sheet open={editOpen} onOpenChange={(v) => { setEditOpen(v); if (!v) setEditError(null) }}>
             <SheetContent className="overflow-y-auto">
               <SheetHeader><SheetTitle>Editar Acompanhamento</SheetTitle></SheetHeader>
-              <div className="mt-6">
+              <div className="mt-6 px-4 pb-4">
                 <AcompanhamentoForm
                   defaultValues={{
                     paciente_id: acomp.paciente_id,
@@ -143,7 +143,7 @@ export default function AcompanhamentoDetailPage() {
                 />
               </div>
               {editError && (
-                <p className="text-sm text-red-600 mt-2 text-center">{editError}</p>
+                <p className="text-sm text-red-600 mt-2 px-4 text-center">{editError}</p>
               )}
             </SheetContent>
           </Sheet>
