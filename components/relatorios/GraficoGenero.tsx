@@ -1,22 +1,16 @@
 'use client'
 
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { Acompanhamento } from '@/types'
+import { Paciente } from '@/types'
 
 const COLORS = ['#3b82f6', '#f59e0b']
 
-interface Props { acompanhamentos: Acompanhamento[] }
+interface Props { pacientes: Paciente[] }
 
-export function GraficoGenero({ acompanhamentos }: Props) {
-  const seen = new Set<string>()
+export function GraficoGenero({ pacientes }: Props) {
   const counts: Record<string, number> = {}
-
-  acompanhamentos.forEach(a => {
-    if (!seen.has(a.paciente_id) && (a.paciente as any)?.genero) {
-      seen.add(a.paciente_id)
-      const g = (a.paciente as any).genero as string
-      counts[g] = (counts[g] ?? 0) + 1
-    }
+  pacientes.forEach(p => {
+    counts[p.genero] = (counts[p.genero] ?? 0) + 1
   })
 
   const data = Object.entries(counts).map(([name, value]) => ({ name, value }))

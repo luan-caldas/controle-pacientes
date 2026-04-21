@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Acompanhamento, ReportFilter, defaultReportFilter } from '@/types'
+import { Acompanhamento, Paciente, ReportFilter, defaultReportFilter } from '@/types'
 import { calcularIdade, calcularDiasAcompanhamento } from '@/lib/calculos'
 import { ReportFiltersPanel } from '@/components/relatorios/ReportFiltersPanel'
 import { ChartCard } from '@/components/relatorios/ChartCard'
@@ -15,31 +15,52 @@ import { GraficoMelhora60Dias } from '@/components/relatorios/GraficoMelhora60Di
 import { GraficoEventos } from '@/components/relatorios/GraficoEventos'
 
 export default function RelatoriosPage() {
+  const [pacientes, setPacientes] = useState<Paciente[]>([])
   const [acompanhamentos, setAcompanhamentos] = useState<Acompanhamento[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<ReportFilter>(defaultReportFilter)
 
   const load = useCallback(async () => {
     setLoading(true)
-    const { data } = await createClient()
-      .from('acompanhamentos')
-      .select(`
+    const supabase = createClient()
+    const [{ data: pacs }, { data: acomps }] = await Promise.all([
+      supabase.from('pacientes').select('*'),
+      supabase.from('acompanhamentos').select(`
         *,
         paciente:pacientes(*),
         diagnostico:diagnosticos(id, nome),
         eventos:acompanhamento_eventos(evento:eventos_nao_esperados(id, nome))
-      `)
-    const normalized = (data ?? []).map((a: any) => ({
+      `),
+    ])
+    setPacientes(pacs ?? [])
+    setAcompanhamentos((acomps ?? []).map((a: any) => ({
       ...a,
       eventos: a.eventos?.map((e: any) => e.evento) ?? [],
-    }))
-    setAcompanhamentos(normalized)
+    })))
     setLoading(false)
   }, [])
 
   useEffect(() => { load() }, [load])
 
   const f = filter
+
+  const filteredPacientes = useMemo(() => {
+    return pacientes.filter(p => {
+      if (f.genero !== 'Todos' && p.genero !== f.genero) return false
+      if (f.idadeMin !== '' || f.idadeMax !== '') {
+        const idade = calcularIdade(p.data_nascimento)
+        if (f.idadeMin !== '' && idade < (f.idadeMin as number)) return false
+        if (f.idadeMax !== '' && idade > (f.idadeMax as number)) return false
+      }
+      if (f.statusPaciente !== 'Todos') {
+        const hasActive = acompanhamentos.some(a => a.paciente_id === p.id && !a.data_alta)
+        if (f.statusPaciente === 'Ativo' && !hasActive) return false
+        if (f.statusPaciente === 'Inativo' && hasActive) return false
+      }
+      return true
+    })
+  }, [pacientes, acompanhamentos, filter])
+
   const filtered = useMemo(() => {
     return acompanhamentos.filter(a => {
       if (f.dataAdmissaoMin && a.data_admissao < f.dataAdmissaoMin) return false
@@ -89,7 +110,7 @@ export default function RelatoriosPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ChartCard title="Gênero">
-            {() => <GraficoGenero acompanhamentos={filtered} />}
+            {() => <GraficoGenero pacientes={filteredPacientes} />}
           </ChartCard>
 
           <ChartCard title="Diagnósticos">
