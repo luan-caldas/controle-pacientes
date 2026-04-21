@@ -13,11 +13,11 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
+  Sheet, SheetContent, SheetHeader, SheetTitle,
 } from '@/components/ui/sheet'
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter,
-  DialogHeader, DialogTitle, DialogTrigger,
+  DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -96,12 +96,10 @@ export default function PacienteDetailPage() {
           <ArrowLeft size={15} /> Pacientes
         </Button>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => setEditOpen(true)}>
+            <Pencil size={13} /> Editar
+          </Button>
           <Sheet open={editOpen} onOpenChange={(v) => { setEditOpen(v); if (!v) setEditError(null) }}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Pencil size={13} /> Editar
-              </Button>
-            </SheetTrigger>
             <SheetContent className="overflow-y-auto">
               <SheetHeader><SheetTitle>Editar Paciente</SheetTitle></SheetHeader>
               <div className="mt-6">
@@ -124,12 +122,10 @@ export default function PacienteDetailPage() {
             </SheetContent>
           </Sheet>
 
+          <Button variant="destructive" size="sm" className="gap-2" onClick={() => setDeleteOpen(true)}>
+            <Trash2 size={13} /> Excluir
+          </Button>
           <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-            <DialogTrigger asChild>
-              <Button variant="destructive" size="sm" className="gap-2">
-                <Trash2 size={13} /> Excluir
-              </Button>
-            </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Excluir paciente?</DialogTitle>

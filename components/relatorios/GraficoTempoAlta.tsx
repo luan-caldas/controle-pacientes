@@ -40,6 +40,8 @@ export function GraficoTempoAlta({ filter }: Props) {
     load()
   }, [filter.from, filter.to])
 
+  if (data.every(d => d.total === 0)) return <div className="flex items-center justify-center h-full text-slate-400 text-sm">Sem dados</div>
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data}>

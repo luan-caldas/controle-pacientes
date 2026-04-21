@@ -9,11 +9,11 @@ import { isAtivo, calcularDiasAcompanhamento, formatarDataBR } from '@/lib/calcu
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
+  Sheet, SheetContent, SheetHeader, SheetTitle,
 } from '@/components/ui/sheet'
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter,
-  DialogHeader, DialogTitle, DialogTrigger,
+  DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
 import {
   AcompanhamentoForm,
@@ -27,6 +27,7 @@ export default function AcompanhamentoDetailPage() {
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [editError, setEditError] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -58,7 +59,8 @@ export default function AcompanhamentoDetailPage() {
   async function handleEdit(data: AcompanhamentoFormData) {
     setEditError(null)
     const supabase = createClient()
-    const { eventos_ids, data_alta, paciente_id, ...rest } = data
+    // paciente_id cannot be changed after creation; field is locked via pacienteIdFixo
+    const { eventos_ids, data_alta, paciente_id: _pacienteId, ...rest } = data
 
     const { error } = await supabase
       .from('acompanhamentos')
@@ -73,9 +75,13 @@ export default function AcompanhamentoDetailPage() {
     await supabase.from('acompanhamento_eventos').delete().eq('acompanhamento_id', id)
 
     if (eventos_ids.length > 0) {
-      await supabase.from('acompanhamento_eventos').insert(
+      const { error: evError } = await supabase.from('acompanhamento_eventos').insert(
         eventos_ids.map(evento_id => ({ acompanhamento_id: id, evento_id }))
       )
+      if (evError) {
+        setEditError('Acompanhamento salvo, mas erro ao registrar eventos.')
+        return
+      }
     }
 
     setEditOpen(false)
@@ -84,10 +90,12 @@ export default function AcompanhamentoDetailPage() {
 
   async function handleDelete() {
     setIsDeleting(true)
+    setDeleteError(null)
     const supabase = createClient()
     const { error } = await supabase.from('acompanhamentos').delete().eq('id', id)
     if (error) {
       setIsDeleting(false)
+      setDeleteError('Erro ao excluir. Tente novamente.')
       return
     }
     router.push('/acompanhamentos')
@@ -111,12 +119,10 @@ export default function AcompanhamentoDetailPage() {
           <ArrowLeft size={15} /> Acompanhamentos
         </Button>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => setEditOpen(true)}>
+            <Pencil size={13} /> Editar
+          </Button>
           <Sheet open={editOpen} onOpenChange={(v) => { setEditOpen(v); if (!v) setEditError(null) }}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Pencil size={13} /> Editar
-              </Button>
-            </SheetTrigger>
             <SheetContent className="overflow-y-auto">
               <SheetHeader><SheetTitle>Editar Acompanhamento</SheetTitle></SheetHeader>
               <div className="mt-6">
@@ -142,18 +148,17 @@ export default function AcompanhamentoDetailPage() {
             </SheetContent>
           </Sheet>
 
-          <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-            <DialogTrigger asChild>
-              <Button variant="destructive" size="sm" className="gap-2">
-                <Trash2 size={13} /> Excluir
-              </Button>
-            </DialogTrigger>
+          <Button variant="destructive" size="sm" className="gap-2" onClick={() => setDeleteOpen(true)}>
+            <Trash2 size={13} /> Excluir
+          </Button>
+          <Dialog open={deleteOpen} onOpenChange={(v) => { setDeleteOpen(v); if (!v) setDeleteError(null) }}>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Excluir acompanhamento?</DialogTitle>
                 <DialogDescription>Esta ação não pode ser desfeita.</DialogDescription>
               </DialogHeader>
               <DialogFooter>
+                {deleteError && <p className="text-sm text-red-600 w-full">{deleteError}</p>}
                 <Button variant="outline" onClick={() => setDeleteOpen(false)}>Cancelar</Button>
                 <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
                   {isDeleting ? 'Excluindo...' : 'Excluir'}

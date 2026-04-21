@@ -7,7 +7,7 @@ import { Acompanhamento } from '@/types'
 import { AcompanhamentosTable } from '@/components/acompanhamentos/AcompanhamentosTable'
 import { Button } from '@/components/ui/button'
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
+  Sheet, SheetContent, SheetHeader, SheetTitle,
 } from '@/components/ui/sheet'
 import {
   AcompanhamentoForm,
@@ -60,9 +60,13 @@ export default function AcompanhamentosPage() {
     }
 
     if (eventos_ids.length > 0) {
-      await supabase.from('acompanhamento_eventos').insert(
+      const { error: evError } = await supabase.from('acompanhamento_eventos').insert(
         eventos_ids.map(evento_id => ({ acompanhamento_id: novo.id, evento_id }))
       )
+      if (evError) {
+        setSaveError('Acompanhamento salvo, mas erro ao registrar eventos.')
+        return
+      }
     }
 
     setSheetOpen(false)
@@ -73,12 +77,10 @@ export default function AcompanhamentosPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-slate-800">Acompanhamentos</h1>
+        <Button size="sm" className="gap-2" onClick={() => setSheetOpen(true)}>
+          <Plus size={15} /> Novo Acompanhamento
+        </Button>
         <Sheet open={sheetOpen} onOpenChange={(v) => { setSheetOpen(v); if (!v) setSaveError(null) }}>
-          <SheetTrigger asChild>
-            <Button size="sm" className="gap-2">
-              <Plus size={15} /> Novo Acompanhamento
-            </Button>
-          </SheetTrigger>
           <SheetContent className="overflow-y-auto">
             <SheetHeader><SheetTitle>Novo Acompanhamento</SheetTitle></SheetHeader>
             <div className="mt-6">
