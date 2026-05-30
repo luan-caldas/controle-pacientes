@@ -32,7 +32,7 @@ export function AcompanhamentosTable({ acompanhamentos }: AcompanhamentosTablePr
           <TableHead>Admissão</TableHead>
           <TableHead>Alta</TableHead>
           <TableHead>Dias</TableHead>
-          <TableHead>SISREG</TableHead>
+          <TableHead>Tipo de Admissão</TableHead>
           <TableHead>Recidiva</TableHead>
           <TableHead>Eventos Não Esperados</TableHead>
         </TableRow>
@@ -64,7 +64,7 @@ export function AcompanhamentosTable({ acompanhamentos }: AcompanhamentosTablePr
               <TableCell>{formatarDataBR(a.data_admissao)}</TableCell>
               <TableCell>{a.data_alta ? formatarDataBR(a.data_alta) : '—'}</TableCell>
               <TableCell>{calcularDiasAcompanhamento(a.data_admissao, a.data_alta)} dias</TableCell>
-              <TableCell>{a.via_sisreg ? 'Sim' : 'Não'}</TableCell>
+              <TableCell>{a.tipo_admissao}</TableCell>
               <TableCell>{a.recidiva ? 'Sim' : 'Não'}</TableCell>
               <TableCell className="max-w-[200px] truncate">
                 {a.eventos?.map(e => e.nome).join(', ') || '—'}
