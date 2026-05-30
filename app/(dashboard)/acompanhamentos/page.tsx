@@ -90,6 +90,7 @@ export default function AcompanhamentosPage() {
   const [filtroDiasMin, setFiltroDiasMin] = useState<number | ''>('')
   const [filtroDiasMax, setFiltroDiasMax] = useState<number | ''>('')
   const [filtroViaSisreg, setFiltroViaSisreg] = useState<'Todos' | 'Sim' | 'Nao'>('Todos')
+  const [filtroDemandaEspontanea, setFiltroDemandaEspontanea] = useState<'Todos' | 'Sim' | 'Nao'>('Todos')
   const [filtroRecidiva, setFiltroRecidiva] = useState<'Todos' | 'Sim' | 'Nao'>('Todos')
   const [filtroEventos, setFiltroEventos] = useState<string[]>([])
   const [eventosPopoverOpen, setEventosPopoverOpen] = useState(false)
@@ -134,6 +135,7 @@ export default function AcompanhamentosPage() {
     setFiltroDiasMin('')
     setFiltroDiasMax('')
     setFiltroViaSisreg('Todos')
+    setFiltroDemandaEspontanea('Todos')
     setFiltroRecidiva('Todos')
     setFiltroEventos([])
     setSearchTerm('')
@@ -149,6 +151,7 @@ export default function AcompanhamentosPage() {
     filtroDiasMin !== '' ||
     filtroDiasMax !== '' ||
     filtroViaSisreg !== 'Todos' ||
+    filtroDemandaEspontanea !== 'Todos' ||
     filtroRecidiva !== 'Todos' ||
     filtroEventos.length > 0
 
@@ -183,6 +186,10 @@ export default function AcompanhamentosPage() {
         // Filtro por via SISREG
         if (filtroViaSisreg === 'Sim' && !a.via_sisreg) return false
         if (filtroViaSisreg === 'Nao' && a.via_sisreg) return false
+
+        // Filtro por demanda espontânea
+        if (filtroDemandaEspontanea === 'Sim' && !a.demanda_espontanea) return false
+        if (filtroDemandaEspontanea === 'Nao' && a.demanda_espontanea) return false
 
         // Filtro por recidiva
         if (filtroRecidiva === 'Sim' && !a.recidiva) return false
@@ -221,6 +228,7 @@ export default function AcompanhamentosPage() {
     filtroDiasMin,
     filtroDiasMax,
     filtroViaSisreg,
+    filtroDemandaEspontanea,
     filtroRecidiva,
     filtroEventos,
   ])
@@ -425,6 +433,24 @@ export default function AcompanhamentosPage() {
               <Select
                 value={filtroViaSisreg}
                 onValueChange={(v) => setFiltroViaSisreg(v as 'Todos' | 'Sim' | 'Nao')}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Todos">Todos</SelectItem>
+                  <SelectItem value="Sim">Sim</SelectItem>
+                  <SelectItem value="Nao">Não</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro por demanda espontânea */}
+            <div className="space-y-1.5">
+              <Label>Demanda Espontânea</Label>
+              <Select
+                value={filtroDemandaEspontanea}
+                onValueChange={(v) => setFiltroDemandaEspontanea(v as 'Todos' | 'Sim' | 'Nao')}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />

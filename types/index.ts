@@ -26,6 +26,7 @@ export interface Acompanhamento {
   paciente_id: string
   diagnostico_id: string
   via_sisreg: boolean
+  demanda_espontanea: boolean
   data_admissao: string
   data_alta: string | null
   recidiva: boolean
@@ -60,6 +61,7 @@ export interface ReportFilter {
   diagnostico: string
   statusAcomp: 'Todos' | 'Ativo' | 'Alta'
   viaSisreg: 'Todos' | 'Sim' | 'Nao'
+  demandaEspontanea: 'Todos' | 'Sim' | 'Nao'
   recidiva: 'Todos' | 'Sim' | 'Nao'
   eventos: string[]
 }
@@ -78,6 +80,7 @@ export const defaultReportFilter: ReportFilter = {
   diagnostico: 'Todos',
   statusAcomp: 'Todos',
   viaSisreg: 'Todos',
+  demandaEspontanea: 'Todos',
   recidiva: 'Todos',
   eventos: [],
 }

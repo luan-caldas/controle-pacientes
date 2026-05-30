@@ -21,6 +21,7 @@ const schema = z.object({
   paciente_id: z.string().uuid('Paciente é obrigatório'),
   diagnostico_id: z.string().uuid('Diagnóstico é obrigatório'),
   via_sisreg: z.boolean(),
+  demanda_espontanea: z.boolean(),
   data_admissao: z.string().min(1, 'Data de admissão é obrigatória'),
   data_alta: z.string().optional().nullable().transform(v => v === '' ? null : (v ?? null)),
   recidiva: z.boolean(),
@@ -55,6 +56,7 @@ export function AcompanhamentoForm({
     resolver: zodResolver(schema),
     defaultValues: {
       via_sisreg: false,
+      demanda_espontanea: false,
       recidiva: false,
       eventos_ids: [],
       ...defaultValues,
@@ -146,6 +148,21 @@ export function AcompanhamentoForm({
           )}
         />
         <Label htmlFor="via_sisreg" className="cursor-pointer">Via SISREG</Label>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Controller
+          control={control}
+          name="demanda_espontanea"
+          render={({ field }) => (
+            <Checkbox
+              id="demanda_espontanea"
+              checked={field.value}
+              onCheckedChange={field.onChange}
+            />
+          )}
+        />
+        <Label htmlFor="demanda_espontanea" className="cursor-pointer">Demanda Espontânea</Label>
       </div>
 
       <div className="flex items-center gap-2">

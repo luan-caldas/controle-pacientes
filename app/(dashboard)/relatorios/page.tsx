@@ -13,6 +13,7 @@ import { GraficoRecidiva } from '@/components/relatorios/GraficoRecidiva'
 import { GraficoViaSisreg } from '@/components/relatorios/GraficoViaSisreg'
 import { GraficoMelhora60Dias } from '@/components/relatorios/GraficoMelhora60Dias'
 import { GraficoEventos } from '@/components/relatorios/GraficoEventos'
+import { GraficoDemandaEspontanea } from '@/components/relatorios/GraficoDemandaEspontanea'
 
 export default function RelatoriosPage() {
   const [pacientes, setPacientes] = useState<Paciente[]>([])
@@ -72,6 +73,8 @@ export default function RelatoriosPage() {
       if (f.diagnostico !== 'Todos' && a.diagnostico?.nome !== f.diagnostico) return false
       if (f.viaSisreg === 'Sim' && !a.via_sisreg) return false
       if (f.viaSisreg === 'Nao' && a.via_sisreg) return false
+      if (f.demandaEspontanea === 'Sim' && !a.demanda_espontanea) return false
+      if (f.demandaEspontanea === 'Nao' && a.demanda_espontanea) return false
       if (f.recidiva === 'Sim' && !a.recidiva) return false
       if (f.recidiva === 'Nao' && a.recidiva) return false
       if (f.eventos.length > 0) {
@@ -135,6 +138,10 @@ export default function RelatoriosPage() {
 
           <ChartCard title="Eventos Não Esperados">
             {() => <GraficoEventos acompanhamentos={filtered} />}
+          </ChartCard>
+
+          <ChartCard title="Demanda Espontânea">
+            {() => <GraficoDemandaEspontanea acompanhamentos={filtered} />}
           </ChartCard>
         </div>
       )}
