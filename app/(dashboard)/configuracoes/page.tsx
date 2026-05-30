@@ -59,7 +59,7 @@ export default function ConfiguracoesPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-lg">
+    <div className="space-y-6 max-w-4xl">
       <h1 className="text-lg font-semibold text-slate-800">Configurações</h1>
 
       {/* Alterar senha */}
@@ -96,21 +96,21 @@ export default function ConfiguracoesPage() {
         </form>
       </div>
 
-      {/* Diagnósticos */}
-      <CrudList
-        title="Diagnósticos"
-        tableName="diagnosticos"
-        checkDependencies={checkDiagnosticoDeps}
-        dependencyMessage="Há acompanhamentos vinculados a este diagnóstico. Altere-os antes de excluir."
-      />
-
-      {/* Eventos não esperados */}
-      <CrudList
-        title="Eventos não esperados"
-        tableName="eventos_nao_esperados"
-        checkDependencies={checkEventoDeps}
-        dependencyMessage="Há acompanhamentos vinculados a este evento. Altere-os antes de excluir."
-      />
+      {/* Diagnósticos e Eventos lado a lado */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CrudList
+          title="Diagnósticos"
+          tableName="diagnosticos"
+          checkDependencies={checkDiagnosticoDeps}
+          dependencyMessage="Há acompanhamentos vinculados a este diagnóstico. Altere-os antes de excluir."
+        />
+        <CrudList
+          title="Eventos não esperados"
+          tableName="eventos_nao_esperados"
+          checkDependencies={checkEventoDeps}
+          dependencyMessage="Há acompanhamentos vinculados a este evento. Altere-os antes de excluir."
+        />
+      </div>
     </div>
   )
 }

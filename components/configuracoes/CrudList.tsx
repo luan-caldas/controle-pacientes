@@ -83,7 +83,7 @@ export function CrudList({ title, tableName, checkDependencies, dependencyMessag
       {loading ? (
         <p className="text-sm text-slate-400">Carregando...</p>
       ) : (
-        <ul className="space-y-1">
+        <ul className="space-y-1 h-64 overflow-y-auto pr-1">
           {items.length === 0 && (
             <li className="text-sm text-slate-400">Nenhum item cadastrado.</li>
           )}
