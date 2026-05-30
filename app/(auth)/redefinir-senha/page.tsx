@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,22 +10,31 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 export default function RedefinirSenhaPage() {
   const [ready, setReady] = useState(false)
+  const [initError, setInitError] = useState<string | null>(null)
   const [novaSenha, setNovaSenha] = useState('')
   const [confirmar, setConfirmar] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
+    const code = searchParams.get('code')
+    if (!code) {
+      setInitError('Link inválido ou expirado. Solicite um novo link de redefinição.')
+      return
+    }
+
     const supabase = createClient()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
+    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      if (error) {
+        setInitError('Link inválido ou expirado. Solicite um novo link de redefinição.')
+      } else {
         setReady(true)
       }
     })
-    return () => subscription.unsubscribe()
-  }, [])
+  }, [searchParams])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -46,7 +55,7 @@ export default function RedefinirSenhaPage() {
     setLoading(false)
 
     if (error) {
-      setError('Erro ao redefinir a senha. O link pode ter expirado — solicite um novo.')
+      setError('Erro ao redefinir a senha. Tente novamente.')
       return
     }
 
@@ -70,6 +79,16 @@ export default function RedefinirSenhaPage() {
             <p className="text-sm text-slate-600 text-center">
               Sua senha foi redefinida. Você será redirecionado para o login em instantes...
             </p>
+          ) : initError ? (
+            <div className="space-y-4 text-center">
+              <p className="text-sm text-red-600">{initError}</p>
+              <a
+                href="/esqueceu-senha"
+                className="text-sm text-slate-500 hover:text-slate-800 underline underline-offset-4"
+              >
+                Solicitar novo link
+              </a>
+            </div>
           ) : !ready ? (
             <p className="text-sm text-slate-500 text-center py-2">Validando link...</p>
           ) : (
