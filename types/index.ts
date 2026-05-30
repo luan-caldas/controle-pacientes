@@ -21,12 +21,13 @@ export interface EventoNaoEsperado {
   nome: string
 }
 
+export type TipoAdmissao = 'Via SISREG' | 'Demanda Espontânea'
+
 export interface Acompanhamento {
   id: string
   paciente_id: string
   diagnostico_id: string
-  via_sisreg: boolean
-  demanda_espontanea: boolean
+  tipo_admissao: TipoAdmissao
   data_admissao: string
   data_alta: string | null
   recidiva: boolean
@@ -60,8 +61,7 @@ export interface ReportFilter {
   // Acompanhamento
   diagnostico: string
   statusAcomp: 'Todos' | 'Ativo' | 'Alta'
-  viaSisreg: 'Todos' | 'Sim' | 'Nao'
-  demandaEspontanea: 'Todos' | 'Sim' | 'Nao'
+  tipoAdmissao: 'Todos' | 'Via SISREG' | 'Demanda Espontânea'
   recidiva: 'Todos' | 'Sim' | 'Nao'
   eventos: string[]
 }
@@ -79,8 +79,7 @@ export const defaultReportFilter: ReportFilter = {
   statusPaciente: 'Todos',
   diagnostico: 'Todos',
   statusAcomp: 'Todos',
-  viaSisreg: 'Todos',
-  demandaEspontanea: 'Todos',
+  tipoAdmissao: 'Todos',
   recidiva: 'Todos',
   eventos: [],
 }

@@ -36,8 +36,7 @@ function isActive(f: ReportFilter): boolean {
     f.dataAltaMax !== null ||
     f.diasMin !== '' ||
     f.diasMax !== '' ||
-    f.viaSisreg !== 'Todos' ||
-    f.demandaEspontanea !== 'Todos' ||
+    f.tipoAdmissao !== 'Todos' ||
     f.recidiva !== 'Todos' ||
     f.eventos.length > 0
   )
@@ -232,28 +231,15 @@ export function ReportFiltersPanel({ value, onChange }: Props) {
               </Select>
             </div>
 
-            {/* Via SISREG */}
+            {/* Tipo de admissão */}
             <div className="space-y-1.5">
-              <Label className="text-xs text-slate-500">Via SISREG</Label>
-              <Select value={value.viaSisreg} onValueChange={v => set('viaSisreg', v as ReportFilter['viaSisreg'])}>
+              <Label className="text-xs text-slate-500">Tipo de admissão</Label>
+              <Select value={value.tipoAdmissao} onValueChange={v => set('tipoAdmissao', v as ReportFilter['tipoAdmissao'])}>
                 <SelectTrigger className="w-full h-8 text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Todos">Todos</SelectItem>
-                  <SelectItem value="Sim">Sim</SelectItem>
-                  <SelectItem value="Nao">Não</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Demanda Espontânea */}
-            <div className="space-y-1.5">
-              <Label className="text-xs text-slate-500">Demanda Espontânea</Label>
-              <Select value={value.demandaEspontanea} onValueChange={v => set('demandaEspontanea', v as ReportFilter['demandaEspontanea'])}>
-                <SelectTrigger className="w-full h-8 text-sm"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Todos">Todos</SelectItem>
-                  <SelectItem value="Sim">Sim</SelectItem>
-                  <SelectItem value="Nao">Não</SelectItem>
+                  <SelectItem value="Via SISREG">Via SISREG</SelectItem>
+                  <SelectItem value="Demanda Espontânea">Demanda Espontânea</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -3,15 +3,15 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Acompanhamento } from '@/types'
 
-const COLORS = ['#10b981', '#94a3b8']
+const COLORS = ['#3b82f6', '#10b981']
 
 interface Props { acompanhamentos: Acompanhamento[] }
 
-export function GraficoDemandaEspontanea({ acompanhamentos }: Props) {
-  const sim = acompanhamentos.filter(a => a.demanda_espontanea).length
+export function GraficoTipoAdmissao({ acompanhamentos }: Props) {
+  const sisreg = acompanhamentos.filter(a => a.tipo_admissao === 'Via SISREG').length
   const data = [
-    { name: 'Demanda espontânea', value: sim },
-    { name: 'Não espontânea', value: acompanhamentos.length - sim },
+    { name: 'Via SISREG', value: sisreg },
+    { name: 'Demanda Espontânea', value: acompanhamentos.length - sisreg },
   ]
 
   if (data.every(d => d.value === 0)) return <div className="flex items-center justify-center h-full text-slate-400 text-sm">Sem dados</div>

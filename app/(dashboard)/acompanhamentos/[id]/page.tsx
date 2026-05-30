@@ -130,8 +130,7 @@ export default function AcompanhamentoDetailPage() {
                   defaultValues={{
                     paciente_id: acomp.paciente_id,
                     diagnostico_id: acomp.diagnostico_id,
-                    via_sisreg: acomp.via_sisreg,
-                    demanda_espontanea: acomp.demanda_espontanea,
+                    tipo_admissao: acomp.tipo_admissao,
                     data_admissao: acomp.data_admissao,
                     data_alta: acomp.data_alta ?? '',
                     recidiva: acomp.recidiva,
@@ -207,12 +206,8 @@ export default function AcompanhamentoDetailPage() {
             <p className="font-medium">{acomp.data_alta ? formatarDataBR(acomp.data_alta) : '—'}</p>
           </div>
           <div>
-            <p className="text-slate-500">Via SISREG</p>
-            <p className="font-medium">{acomp.via_sisreg ? 'Sim' : 'Não'}</p>
-          </div>
-          <div>
-            <p className="text-slate-500">Demanda Espontânea</p>
-            <p className="font-medium">{acomp.demanda_espontanea ? 'Sim' : 'Não'}</p>
+            <p className="text-slate-500">Tipo de admissão</p>
+            <p className="font-medium">{acomp.tipo_admissao}</p>
           </div>
           <div>
             <p className="text-slate-500">Recidiva</p>

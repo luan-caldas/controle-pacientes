@@ -10,10 +10,9 @@ import { GraficoGenero } from '@/components/relatorios/GraficoGenero'
 import { GraficoDiagnosticos } from '@/components/relatorios/GraficoDiagnosticos'
 import { GraficoTempoAlta } from '@/components/relatorios/GraficoTempoAlta'
 import { GraficoRecidiva } from '@/components/relatorios/GraficoRecidiva'
-import { GraficoViaSisreg } from '@/components/relatorios/GraficoViaSisreg'
+import { GraficoTipoAdmissao } from '@/components/relatorios/GraficoTipoAdmissao'
 import { GraficoMelhora60Dias } from '@/components/relatorios/GraficoMelhora60Dias'
 import { GraficoEventos } from '@/components/relatorios/GraficoEventos'
-import { GraficoDemandaEspontanea } from '@/components/relatorios/GraficoDemandaEspontanea'
 
 export default function RelatoriosPage() {
   const [pacientes, setPacientes] = useState<Paciente[]>([])
@@ -71,10 +70,7 @@ export default function RelatoriosPage() {
       if (f.statusAcomp === 'Ativo' && a.data_alta) return false
       if (f.statusAcomp === 'Alta' && !a.data_alta) return false
       if (f.diagnostico !== 'Todos' && a.diagnostico?.nome !== f.diagnostico) return false
-      if (f.viaSisreg === 'Sim' && !a.via_sisreg) return false
-      if (f.viaSisreg === 'Nao' && a.via_sisreg) return false
-      if (f.demandaEspontanea === 'Sim' && !a.demanda_espontanea) return false
-      if (f.demandaEspontanea === 'Nao' && a.demanda_espontanea) return false
+      if (f.tipoAdmissao !== 'Todos' && a.tipo_admissao !== f.tipoAdmissao) return false
       if (f.recidiva === 'Sim' && !a.recidiva) return false
       if (f.recidiva === 'Nao' && a.recidiva) return false
       if (f.eventos.length > 0) {
@@ -128,8 +124,8 @@ export default function RelatoriosPage() {
             {() => <GraficoRecidiva acompanhamentos={filtered} />}
           </ChartCard>
 
-          <ChartCard title="Via SISREG">
-            {() => <GraficoViaSisreg acompanhamentos={filtered} />}
+          <ChartCard title="Tipo de Admissão">
+            {() => <GraficoTipoAdmissao acompanhamentos={filtered} />}
           </ChartCard>
 
           <ChartCard title="Melhora em até 60 dias">
@@ -138,10 +134,6 @@ export default function RelatoriosPage() {
 
           <ChartCard title="Eventos Não Esperados">
             {() => <GraficoEventos acompanhamentos={filtered} />}
-          </ChartCard>
-
-          <ChartCard title="Demanda Espontânea">
-            {() => <GraficoDemandaEspontanea acompanhamentos={filtered} />}
           </ChartCard>
         </div>
       )}

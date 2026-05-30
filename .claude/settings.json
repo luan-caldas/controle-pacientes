@@ -8,10 +8,31 @@
       "Bash(npx shadcn@latest add button input label card table sheet dialog badge select command popover checkbox separator scroll-area --overwrite)",
       "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(JSON.stringify\\({dependencies: Object.keys\\(p.dependencies\\), devDependencies: Object.keys\\(p.devDependencies\\)}, null, 2\\)\\)\")",
       "Bash(git init *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git commit *)",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\('next:', p.dependencies.next\\); console.log\\('react:', p.dependencies.react\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(npm uninstall *)",
+      "mcp__supabase__list_projects",
+      "mcp__supabase__get_project_url",
+      "mcp__supabase__get_publishable_keys",
+      "mcp__supabase__apply_migration",
+      "mcp__supabase__list_tables",
+      "Bash(npx jest *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\({dependencies:p.dependencies,devDependencies:p.devDependencies},null,2\\)\\)\")",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "mcp__supabase__execute_sql",
+      "Bash(python3 -c ' *)",
+      "Bash(python3)",
+      "mcp__claude_ai_Supabase__list_projects",
+      "mcp__claude_ai_Supabase__apply_migration"
     ],
     "additionalDirectories": [
-      "\\tmp"
+      "\\tmp",
+      "c:\\Users\\luanp\\OneDrive\\Documentos\\controle-pacientes\\app\\(dashboard)\\pacientes",
+      "c:\\Users\\luanp\\OneDrive\\Documentos\\controle-pacientes\\app\\(dashboard)\\acompanhamentos"
     ]
   },
   "enabledPlugins": {

@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
+
 import { Textarea } from '@/components/ui/textarea'
 import { DiagnosticoCombobox } from './DiagnosticoCombobox'
 import { EventosMultiSelect } from './EventosMultiSelect'
@@ -20,8 +21,7 @@ import { Paciente } from '@/types'
 const schema = z.object({
   paciente_id: z.string().uuid('Paciente é obrigatório'),
   diagnostico_id: z.string().uuid('Diagnóstico é obrigatório'),
-  via_sisreg: z.boolean(),
-  demanda_espontanea: z.boolean(),
+  tipo_admissao: z.enum(['Via SISREG', 'Demanda Espontânea']),
   data_admissao: z.string().min(1, 'Data de admissão é obrigatória'),
   data_alta: z.string().optional().nullable().transform(v => v === '' ? null : (v ?? null)),
   recidiva: z.boolean(),
@@ -55,8 +55,7 @@ export function AcompanhamentoForm({
   } = useForm<AcompanhamentoFormInput, unknown, AcompanhamentoFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      via_sisreg: false,
-      demanda_espontanea: false,
+      tipo_admissao: 'Via SISREG' as const,
       recidiva: false,
       eventos_ids: [],
       ...defaultValues,
@@ -135,34 +134,21 @@ export function AcompanhamentoForm({
         <Input id="data_alta" type="date" {...register('data_alta')} />
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="space-y-1.5">
+        <Label>Tipo de admissão</Label>
         <Controller
           control={control}
-          name="via_sisreg"
+          name="tipo_admissao"
           render={({ field }) => (
-            <Checkbox
-              id="via_sisreg"
-              checked={field.value}
-              onCheckedChange={field.onChange}
-            />
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Via SISREG">Via SISREG</SelectItem>
+                <SelectItem value="Demanda Espontânea">Demanda Espontânea</SelectItem>
+              </SelectContent>
+            </Select>
           )}
         />
-        <Label htmlFor="via_sisreg" className="cursor-pointer">Via SISREG</Label>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <Controller
-          control={control}
-          name="demanda_espontanea"
-          render={({ field }) => (
-            <Checkbox
-              id="demanda_espontanea"
-              checked={field.value}
-              onCheckedChange={field.onChange}
-            />
-          )}
-        />
-        <Label htmlFor="demanda_espontanea" className="cursor-pointer">Demanda Espontânea</Label>
       </div>
 
       <div className="flex items-center gap-2">
