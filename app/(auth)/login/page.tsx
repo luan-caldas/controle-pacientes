@@ -22,10 +22,22 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password })
 
       if (error) {
         setError('E-mail ou senha inválidos.')
+        return
+      }
+
+      const { data: authorized } = await supabase
+        .from('authorized_users')
+        .select('user_id')
+        .eq('user_id', authData.user.id)
+        .maybeSingle()
+
+      if (!authorized) {
+        await supabase.auth.signOut()
+        setError('Acesso não autorizado. Entre em contato com o administrador.')
         return
       }
 
