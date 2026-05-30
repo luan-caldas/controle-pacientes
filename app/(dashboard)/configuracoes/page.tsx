@@ -5,6 +5,23 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { CrudList } from '@/components/configuracoes/CrudList'
+
+async function checkDiagnosticoDeps(id: string): Promise<boolean> {
+  const { count } = await createClient()
+    .from('acompanhamentos')
+    .select('*', { count: 'exact', head: true })
+    .eq('diagnostico_id', id)
+  return (count ?? 0) > 0
+}
+
+async function checkEventoDeps(id: string): Promise<boolean> {
+  const { count } = await createClient()
+    .from('acompanhamento_eventos')
+    .select('*', { count: 'exact', head: true })
+    .eq('evento_id', id)
+  return (count ?? 0) > 0
+}
 
 export default function ConfiguracoesPage() {
   const [novaSenha, setNovaSenha] = useState('')
@@ -28,8 +45,7 @@ export default function ConfiguracoesPage() {
     }
 
     setLoading(true)
-    const supabase = createClient()
-    const { error } = await supabase.auth.updateUser({ password: novaSenha })
+    const { error } = await createClient().auth.updateUser({ password: novaSenha })
     setLoading(false)
 
     if (error) {
@@ -43,12 +59,12 @@ export default function ConfiguracoesPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-md">
+    <div className="space-y-6 max-w-lg">
       <h1 className="text-lg font-semibold text-slate-800">Configurações</h1>
 
+      {/* Alterar senha */}
       <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">
         <h2 className="text-sm font-semibold text-slate-700">Alterar senha</h2>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="nova-senha">Nova senha</Label>
@@ -61,7 +77,6 @@ export default function ConfiguracoesPage() {
               autoComplete="new-password"
             />
           </div>
-
           <div className="space-y-1.5">
             <Label htmlFor="confirmar-senha">Confirmar nova senha</Label>
             <Input
@@ -73,20 +88,29 @@ export default function ConfiguracoesPage() {
               autoComplete="new-password"
             />
           </div>
-
-          {erro && (
-            <p className="text-sm text-red-600">{erro}</p>
-          )}
-
-          {sucesso && (
-            <p className="text-sm text-green-600">Senha alterada com sucesso.</p>
-          )}
-
+          {erro && <p className="text-sm text-red-600">{erro}</p>}
+          {sucesso && <p className="text-sm text-green-600">Senha alterada com sucesso.</p>}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? 'Salvando...' : 'Salvar nova senha'}
           </Button>
         </form>
       </div>
+
+      {/* Diagnósticos */}
+      <CrudList
+        title="Diagnósticos"
+        tableName="diagnosticos"
+        checkDependencies={checkDiagnosticoDeps}
+        dependencyMessage="Há acompanhamentos vinculados a este diagnóstico. Altere-os antes de excluir."
+      />
+
+      {/* Eventos não esperados */}
+      <CrudList
+        title="Eventos não esperados"
+        tableName="eventos_nao_esperados"
+        checkDependencies={checkEventoDeps}
+        dependencyMessage="Há acompanhamentos vinculados a este evento. Altere-os antes de excluir."
+      />
     </div>
   )
 }
