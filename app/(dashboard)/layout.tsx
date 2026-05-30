@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Users, ClipboardList, Phone, BarChart3, LogOut } from 'lucide-react'
+import { Users, ClipboardList, Phone, BarChart3, Settings, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -12,6 +12,7 @@ const navItems = [
   { href: '/acompanhamentos', label: 'Acompanhamentos', icon: ClipboardList },
   { href: '/ligacao', label: 'Ligação', icon: Phone },
   { href: '/relatorios', label: 'Relatórios', icon: BarChart3 },
+  { href: '/configuracoes', label: 'Configurações', icon: Settings },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
