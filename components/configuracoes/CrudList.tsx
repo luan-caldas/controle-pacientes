@@ -5,6 +5,10 @@ import { Pencil, Trash2, Plus, Check, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+  DialogDescription, DialogFooter,
+} from '@/components/ui/dialog'
 
 interface Item { id: string; nome: string }
 
@@ -23,6 +27,7 @@ export function CrudList({ title, tableName, checkDependencies, dependencyMessag
   const [addNome, setAddNome] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
+  const [confirmItem, setConfirmItem] = useState<Item | null>(null)
 
   const load = useCallback(async () => {
     const { data } = await createClient().from(tableName).select('id, nome').order('nome')
@@ -61,7 +66,10 @@ export function CrudList({ title, tableName, checkDependencies, dependencyMessag
     load()
   }
 
-  async function handleDelete(id: string) {
+  async function handleConfirmDelete() {
+    if (!confirmItem) return
+    const { id } = confirmItem
+    setConfirmItem(null)
     clearError(id)
     const hasDeps = await checkDependencies(id)
     if (hasDeps) {
@@ -120,7 +128,7 @@ export function CrudList({ title, tableName, checkDependencies, dependencyMessag
                     </Button>
                     <Button
                       size="icon" variant="ghost" className="h-7 w-7 hover:text-red-600"
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => setConfirmItem(item)}
                     >
                       <Trash2 size={13} />
                     </Button>
@@ -134,6 +142,21 @@ export function CrudList({ title, tableName, checkDependencies, dependencyMessag
           ))}
         </ul>
       )}
+
+      <Dialog open={!!confirmItem} onOpenChange={open => { if (!open) setConfirmItem(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir item?</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir <strong>{confirmItem?.nome}</strong>? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmItem(null)}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleConfirmDelete}>Excluir</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
         <Input
