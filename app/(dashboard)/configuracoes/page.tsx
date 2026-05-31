@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,6 +23,8 @@ async function checkEventoDeps(id: string): Promise<boolean> {
   return (count ?? 0) > 0
 }
 
+type UsuarioAutorizado = { user_id: string; email: string | null; created_at: string }
+
 export default function ConfiguracoesPage() {
   const [novaSenha, setNovaSenha] = useState('')
   const [confirmarSenha, setConfirmarSenha] = useState('')
@@ -36,6 +38,45 @@ export default function ConfiguracoesPage() {
   const [loadingUsuario, setLoadingUsuario] = useState(false)
   const [erroUsuario, setErroUsuario] = useState<string | null>(null)
   const [sucessoUsuario, setSucessoUsuario] = useState(false)
+
+  const [usuarios, setUsuarios] = useState<UsuarioAutorizado[]>([])
+  const [loadingUsuarios, setLoadingUsuarios] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [removendo, setRemovendo] = useState<string | null>(null)
+  const [erroRemover, setErroRemover] = useState<string | null>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUserId(data.user?.id ?? null)
+    })
+    loadUsuariosAutorizados()
+  }, [])
+
+  async function loadUsuariosAutorizados() {
+    setLoadingUsuarios(true)
+    const { data } = await createClient()
+      .from('authorized_users')
+      .select('user_id, email, created_at')
+      .order('created_at', { ascending: true })
+    setLoadingUsuarios(false)
+    setUsuarios(data ?? [])
+  }
+
+  async function handleRemoverUsuario(userId: string) {
+    setErroRemover(null)
+    setRemovendo(userId)
+    const { error } = await createClient()
+      .from('authorized_users')
+      .delete()
+      .eq('user_id', userId)
+    setRemovendo(null)
+    if (error) {
+      setErroRemover('Erro ao remover acesso. Tente novamente.')
+      return
+    }
+    setUsuarios(prev => prev.filter(u => u.user_id !== userId))
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -92,6 +133,7 @@ export default function ConfiguracoesPage() {
       setNovoEmail('')
       setNovaSenhaUsuario('')
       setConfirmarSenhaUsuario('')
+      loadUsuariosAutorizados()
     } finally {
       setLoadingUsuario(false)
     }
@@ -179,6 +221,52 @@ export default function ConfiguracoesPage() {
             {loadingUsuario ? 'Criando...' : 'Criar usuário'}
           </Button>
         </form>
+      </div>
+
+      {/* Usuários autorizados */}
+      <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-slate-700">Usuários autorizados</h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={loadUsuariosAutorizados}
+            disabled={loadingUsuarios}
+            className="text-slate-500"
+          >
+            Atualizar
+          </Button>
+        </div>
+        {loadingUsuarios && usuarios.length === 0 ? (
+          <p className="text-sm text-slate-500">Carregando...</p>
+        ) : usuarios.length === 0 ? (
+          <p className="text-sm text-slate-500">Nenhum usuário autorizado encontrado.</p>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {usuarios.map(u => (
+              <div key={u.user_id} className="flex items-center justify-between py-2.5">
+                <div className="min-w-0">
+                  <p className="text-sm text-slate-800 truncate">{u.email ?? u.user_id}</p>
+                  {u.user_id === currentUserId && (
+                    <p className="text-xs text-slate-400">você</p>
+                  )}
+                </div>
+                {u.user_id !== currentUserId && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0 ml-4"
+                    disabled={removendo === u.user_id}
+                    onClick={() => handleRemoverUsuario(u.user_id)}
+                  >
+                    {removendo === u.user_id ? 'Removendo...' : 'Remover acesso'}
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        {erroRemover && <p className="text-sm text-red-600">{erroRemover}</p>}
       </div>
 
       {/* Diagnósticos e Eventos lado a lado */}

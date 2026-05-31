@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
 
     const { error: insertError } = await adminClient
       .from('authorized_users')
-      .insert({ user_id: newUser.user.id })
+      .insert({ user_id: newUser.user.id, email: email })
 
     if (insertError) {
       await adminClient.auth.admin.deleteUser(newUser.user.id)
