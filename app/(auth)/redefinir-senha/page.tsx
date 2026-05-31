@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
-export default function RedefinirSenhaPage() {
+function RedefinirSenhaContent() {
   const [ready, setReady] = useState(false)
   const [initError, setInitError] = useState<string | null>(null)
   const [novaSenha, setNovaSenha] = useState('')
@@ -126,5 +126,17 @@ export default function RedefinirSenhaPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function RedefinirSenhaPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <p className="text-sm text-slate-500">Carregando...</p>
+      </div>
+    }>
+      <RedefinirSenhaContent />
+    </Suspense>
   )
 }
