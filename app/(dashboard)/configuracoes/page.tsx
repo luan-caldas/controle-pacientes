@@ -42,6 +42,7 @@ export default function ConfiguracoesPage() {
   const [usuarios, setUsuarios] = useState<UsuarioAutorizado[]>([])
   const [loadingUsuarios, setLoadingUsuarios] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null)
   const [removendo, setRemovendo] = useState<string | null>(null)
   const [erroRemover, setErroRemover] = useState<string | null>(null)
 
@@ -49,6 +50,7 @@ export default function ConfiguracoesPage() {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
       setCurrentUserId(data.user?.id ?? null)
+      setCurrentUserEmail(data.user?.email ?? null)
     })
     loadUsuariosAutorizados()
   }, [])
@@ -246,7 +248,9 @@ export default function ConfiguracoesPage() {
             {usuarios.map(u => (
               <div key={u.user_id} className="flex items-center justify-between py-2.5">
                 <div className="min-w-0">
-                  <p className="text-sm text-slate-800 truncate">{u.email ?? u.user_id}</p>
+                  <p className="text-sm text-slate-800 truncate">
+                    {u.email ?? (u.user_id === currentUserId ? currentUserEmail : u.user_id)}
+                  </p>
                   {u.user_id === currentUserId && (
                     <p className="text-xs text-slate-400">você</p>
                   )}
