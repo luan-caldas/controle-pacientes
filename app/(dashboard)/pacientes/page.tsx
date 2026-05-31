@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, Filter, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { normalizeStr } from '@/lib/utils'
 import { Paciente, Acompanhamento, Genero } from '@/types'
 import { PacientesTable } from '@/components/pacientes/PacientesTable'
 import { NovoPacienteSheet } from '@/components/pacientes/NovoPacienteSheet'
@@ -17,36 +18,28 @@ import { Button } from '@/components/ui/button'
 // Função de fuzzy match simples
 function fuzzyMatch(text: string, query: string): boolean {
   if (!query) return true
-  const t = text.toLowerCase()
-  const q = query.toLowerCase()
+  const t = normalizeStr(text)
+  const q = normalizeStr(query)
 
-  // Match exato ou substring
   if (t.includes(q)) return true
 
-  // Fuzzy: cada caractere da query deve aparecer na ordem em text
   let tIdx = 0
   let qIdx = 0
   while (tIdx < t.length && qIdx < q.length) {
-    if (t[tIdx] === q[qIdx]) {
-      qIdx++
-    }
+    if (t[tIdx] === q[qIdx]) qIdx++
     tIdx++
   }
 
   return qIdx === q.length
 }
 
-// Calcula score de relevância (maior = melhor)
 function fuzzyScore(text: string, query: string): number {
   if (!query) return 1
-  const t = text.toLowerCase()
-  const q = query.toLowerCase()
+  const t = normalizeStr(text)
+  const q = normalizeStr(query)
 
-  // Match exato no início tem maior score
   if (t.startsWith(q)) return 3
-  // Match exato em qualquer lugar
   if (t.includes(q)) return 2
-  // Fuzzy match
   if (fuzzyMatch(t, q)) return 1
   return 0
 }

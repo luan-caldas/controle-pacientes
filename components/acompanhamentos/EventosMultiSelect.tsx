@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { createClient } from '@/lib/supabase/client'
+import { normalizeStr } from '@/lib/utils'
 import { EventoNaoEsperado } from '@/types'
 
 interface EventosMultiSelectProps {
@@ -35,11 +36,11 @@ export function EventosMultiSelect({ value, onChange }: EventosMultiSelectProps)
   useEffect(() => { load() }, [])
 
   const filtered = eventos.filter(e =>
-    e.nome.toLowerCase().includes(search.toLowerCase())
+    normalizeStr(e.nome).includes(normalizeStr(search))
   )
 
   const showCreate = search.trim().length > 0 &&
-    !filtered.some(e => e.nome.toLowerCase() === search.trim().toLowerCase())
+    !filtered.some(e => normalizeStr(e.nome) === normalizeStr(search.trim()))
 
   async function handleCreate() {
     if (creating) return
@@ -74,7 +75,7 @@ export function EventosMultiSelect({ value, onChange }: EventosMultiSelectProps)
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-          <Command>
+          <Command shouldFilter={false}>
             <CommandInput
               placeholder="Buscar evento..."
               value={search}

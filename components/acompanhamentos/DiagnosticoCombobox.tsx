@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { createClient } from '@/lib/supabase/client'
+import { normalizeStr } from '@/lib/utils'
 import { Diagnostico } from '@/types'
 
 interface DiagnosticoComboboxProps {
@@ -34,11 +35,11 @@ export function DiagnosticoCombobox({ value, onChange }: DiagnosticoComboboxProp
   useEffect(() => { load() }, [])
 
   const filtered = diagnosticos.filter(d =>
-    d.nome.toLowerCase().includes(search.toLowerCase())
+    normalizeStr(d.nome).includes(normalizeStr(search))
   )
 
   const showCreate = search.trim().length > 0 &&
-    !filtered.some(d => d.nome.toLowerCase() === search.trim().toLowerCase())
+    !filtered.some(d => normalizeStr(d.nome) === normalizeStr(search.trim()))
 
   async function handleCreate() {
     if (creating) return
@@ -69,7 +70,7 @@ export function DiagnosticoCombobox({ value, onChange }: DiagnosticoComboboxProp
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput
             placeholder="Buscar diagnóstico..."
             value={search}

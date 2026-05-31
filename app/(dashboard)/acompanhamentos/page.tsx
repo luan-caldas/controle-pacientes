@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { cn, normalizeStr } from '@/lib/utils'
 import {
   Command, CommandGroup, CommandInput, CommandItem, CommandList, CommandEmpty,
 } from '@/components/ui/command'
@@ -26,39 +26,30 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 
-// Função de fuzzy match simples
 function fuzzyMatch(text: string, query: string): boolean {
   if (!query) return true
-  const t = text.toLowerCase()
-  const q = query.toLowerCase()
+  const t = normalizeStr(text)
+  const q = normalizeStr(query)
 
-  // Match exato ou substring
   if (t.includes(q)) return true
 
-  // Fuzzy: cada caractere da query deve aparecer na ordem em text
   let tIdx = 0
   let qIdx = 0
   while (tIdx < t.length && qIdx < q.length) {
-    if (t[tIdx] === q[qIdx]) {
-      qIdx++
-    }
+    if (t[tIdx] === q[qIdx]) qIdx++
     tIdx++
   }
 
   return qIdx === q.length
 }
 
-// Calcula score de relevância (maior = melhor)
 function fuzzyScore(text: string, query: string): number {
   if (!query) return 1
-  const t = text.toLowerCase()
-  const q = query.toLowerCase()
+  const t = normalizeStr(text)
+  const q = normalizeStr(query)
 
-  // Match exato no início tem maior score
   if (t.startsWith(q)) return 3
-  // Match exato em qualquer lugar
   if (t.includes(q)) return 2
-  // Fuzzy match
   if (fuzzyMatch(t, q)) return 1
   return 0
 }
@@ -468,7 +459,7 @@ export default function AcompanhamentosPage() {
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </PopoverTrigger>
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                  <Command>
+                  <Command filter={(v, s) => normalizeStr(v).includes(normalizeStr(s)) ? 1 : 0}>
                     <CommandInput placeholder="Buscar evento..." />
                     <CommandList>
                       <CommandEmpty>Nenhum resultado.</CommandEmpty>

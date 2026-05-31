@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Filter, X, Check, ChevronsUpDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ReportFilter, defaultReportFilter, Diagnostico, EventoNaoEsperado } from '@/types'
-import { cn } from '@/lib/utils'
+import { cn, normalizeStr } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -304,7 +304,7 @@ export function ReportFiltersPanel({ value, onChange }: Props) {
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </PopoverTrigger>
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                  <Command>
+                  <Command filter={(v, s) => normalizeStr(v).includes(normalizeStr(s)) ? 1 : 0}>
                     <CommandInput placeholder="Buscar evento..." />
                     <CommandList>
                       <CommandEmpty>Nenhum resultado.</CommandEmpty>
