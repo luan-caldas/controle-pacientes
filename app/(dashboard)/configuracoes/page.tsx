@@ -30,6 +30,13 @@ export default function ConfiguracoesPage() {
   const [erro, setErro] = useState<string | null>(null)
   const [sucesso, setSucesso] = useState(false)
 
+  const [novoEmail, setNovoEmail] = useState('')
+  const [novaSenhaUsuario, setNovaSenhaUsuario] = useState('')
+  const [confirmarSenhaUsuario, setConfirmarSenhaUsuario] = useState('')
+  const [loadingUsuario, setLoadingUsuario] = useState(false)
+  const [erroUsuario, setErroUsuario] = useState<string | null>(null)
+  const [sucessoUsuario, setSucessoUsuario] = useState(false)
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setErro(null)
@@ -56,6 +63,38 @@ export default function ConfiguracoesPage() {
     setSucesso(true)
     setNovaSenha('')
     setConfirmarSenha('')
+  }
+
+  async function handleCriarUsuario(e: React.FormEvent) {
+    e.preventDefault()
+    setErroUsuario(null)
+    setSucessoUsuario(false)
+
+    if (novaSenhaUsuario.length < 6) {
+      setErroUsuario('A senha deve ter pelo menos 6 caracteres.')
+      return
+    }
+    if (novaSenhaUsuario !== confirmarSenhaUsuario) {
+      setErroUsuario('As senhas não coincidem.')
+      return
+    }
+
+    setLoadingUsuario(true)
+    try {
+      const { data, error } = await createClient().functions.invoke('criar-usuario', {
+        body: { email: novoEmail, password: novaSenhaUsuario },
+      })
+      if (error || data?.error) {
+        setErroUsuario(data?.error ?? 'Erro ao criar usuário.')
+        return
+      }
+      setSucessoUsuario(true)
+      setNovoEmail('')
+      setNovaSenhaUsuario('')
+      setConfirmarSenhaUsuario('')
+    } finally {
+      setLoadingUsuario(false)
+    }
   }
 
   return (
@@ -92,6 +131,52 @@ export default function ConfiguracoesPage() {
           {sucesso && <p className="text-sm text-green-600">Senha alterada com sucesso.</p>}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? 'Salvando...' : 'Salvar nova senha'}
+          </Button>
+        </form>
+      </div>
+
+      {/* Criar novo usuário */}
+      <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">
+        <h2 className="text-sm font-semibold text-slate-700">Criar novo usuário</h2>
+        <form onSubmit={handleCriarUsuario} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="novo-email">E-mail</Label>
+            <Input
+              id="novo-email"
+              type="email"
+              value={novoEmail}
+              onChange={e => setNovoEmail(e.target.value)}
+              placeholder="usuario@email.com"
+              required
+              autoComplete="off"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="nova-senha-usuario">Senha</Label>
+            <Input
+              id="nova-senha-usuario"
+              type="password"
+              value={novaSenhaUsuario}
+              onChange={e => setNovaSenhaUsuario(e.target.value)}
+              placeholder="Mínimo 6 caracteres"
+              autoComplete="new-password"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="confirmar-senha-usuario">Confirmar senha</Label>
+            <Input
+              id="confirmar-senha-usuario"
+              type="password"
+              value={confirmarSenhaUsuario}
+              onChange={e => setConfirmarSenhaUsuario(e.target.value)}
+              placeholder="Repita a senha"
+              autoComplete="new-password"
+            />
+          </div>
+          {erroUsuario && <p className="text-sm text-red-600">{erroUsuario}</p>}
+          {sucessoUsuario && <p className="text-sm text-green-600">Usuário criado com sucesso.</p>}
+          <Button type="submit" disabled={loadingUsuario} className="w-full">
+            {loadingUsuario ? 'Criando...' : 'Criar usuário'}
           </Button>
         </form>
       </div>
