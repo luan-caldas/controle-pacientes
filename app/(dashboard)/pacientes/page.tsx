@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { Search, Filter, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Paciente, Acompanhamento, Genero } from '@/types'
@@ -66,6 +67,7 @@ function calcularIdade(dataNascimento: string): number {
 }
 
 export default function PacientesPage() {
+  const router = useRouter()
   const [pacientes, setPacientes] = useState<Paciente[]>([])
   const [acompanhamentos, setAcompanhamentos] = useState<Acompanhamento[]>([])
   const [loading, setLoading] = useState(true)
@@ -141,7 +143,7 @@ export default function PacientesPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-slate-800">Pacientes</h1>
-        <NovoPacienteSheet onSuccess={load} />
+        <NovoPacienteSheet onSuccess={(id) => router.push(`/pacientes/${id}`)} />
       </div>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />

@@ -10,7 +10,7 @@ import { createClient } from '@/lib/supabase/client'
 import { PacienteForm, PacienteFormData } from './PacienteForm'
 
 interface NovoPacienteSheetProps {
-  onSuccess: () => void
+  onSuccess: (id: string) => void
 }
 
 export function NovoPacienteSheet({ onSuccess }: NovoPacienteSheetProps) {
@@ -20,13 +20,13 @@ export function NovoPacienteSheet({ onSuccess }: NovoPacienteSheetProps) {
   async function handleSubmit(data: PacienteFormData) {
     setSaveError(null)
     const supabase = createClient()
-    const { error } = await supabase.from('pacientes').insert(data)
-    if (error) {
+    const { data: novo, error } = await supabase.from('pacientes').insert(data).select().single()
+    if (error || !novo) {
       setSaveError('Erro ao salvar. Tente novamente.')
       return
     }
     setOpen(false)
-    onSuccess()
+    onSuccess(novo.id)
   }
 
   return (

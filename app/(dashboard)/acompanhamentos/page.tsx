@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { Plus, Search, Filter, X, Check, ChevronsUpDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Acompanhamento, Diagnostico, EventoNaoEsperado } from '@/types'
@@ -71,6 +72,7 @@ function calcularDias(dataAdmissao: string, dataAlta: string | null): number {
 }
 
 export default function AcompanhamentosPage() {
+  const router = useRouter()
   const [acompanhamentos, setAcompanhamentos] = useState<Acompanhamento[]>([])
   const [diagnosticos, setDiagnosticos] = useState<Diagnostico[]>([])
   const [eventos, setEventos] = useState<EventoNaoEsperado[]>([])
@@ -249,8 +251,7 @@ export default function AcompanhamentosPage() {
       }
     }
 
-    setSheetOpen(false)
-    load()
+    router.push(`/acompanhamentos/${novo.id}`)
   }
 
   return (
